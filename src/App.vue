@@ -17,17 +17,33 @@
     </v-toolbar>
 
     <v-content>
-      <router-view/>
+      <UrlInput v-on:update:url="urlUpdated($event)" v-bind:url="url"/>
+
+      Current url is: {{ url }}
+
+      <ArticleList/>
     </v-content>
   </v-app>
 </template>
 
 <script>
+import UrlInput from './components/UrlInput'
+import ArticleList from './components/ArticleList'
 
 export default {
   name: 'App',
+  components: {
+    UrlInput,
+    ArticleList
+  },
+  methods: {
+    urlUpdated (url) {
+      this.url = url
+    }
+  },
   data () {
     return {
+      url: "Please enter a URL"
       //
     }
   }

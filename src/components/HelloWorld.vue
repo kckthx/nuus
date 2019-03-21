@@ -13,6 +13,16 @@
         ></v-img>
       </v-flex>
 
+      <v-flex>
+        <v-text-field
+            :messages="['Messages']"
+            append-icon="get_app"
+            prepend-icon="home"
+          >
+            This is the url
+        </v-text-field>
+      </v-flex>
+
       <v-flex mb-4>
         <h1 class="display-2 font-weight-bold mb-3">
           Welcome to Vuetify
