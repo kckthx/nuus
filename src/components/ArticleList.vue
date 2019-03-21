@@ -17,22 +17,17 @@
 export default {
   methods: {
   },
-
-  data: () => ({
-    articles: [
-      {
-        title: "vuetify-loader",
-        link: "https://github.com/vuetifyjs/vuetify-loader"
-      },
-      {
-        title: "github",
-        link: "https://github.com/vuetifyjs/vuetify"
-      },
-      {
-        title: "awesome-vuetify",
-        link: "https://github.com/vuetifyjs/awesome-vuetify"
+  props: {
+    articles: {
+      type: Array,
+      // Object or array defaults must be returned from
+      // a factory function
+      default: function () {
+        return []
       }
-    ]
+    }
+  },
+  data: () => ({
   })
 };
 </script>
