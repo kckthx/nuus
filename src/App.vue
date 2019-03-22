@@ -2,8 +2,8 @@
   <v-app>
     <v-toolbar app>
       <v-toolbar-title class="headline text-uppercase">
-        <span>Vuetify</span>
-        <span class="font-weight-light">MATERIAL DESIGN</span>
+        <span>NUUS</span>
+        <span class="font-weight-light"> RSS READER</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn
@@ -19,37 +19,83 @@
     <v-content>
       <UrlInput v-on:update:url="urlUpdated($event)" v-bind:url="url"/>
 
-      Current url is: {{ url }}
+      <div>Current url is: {{ url }}</div>
 
-      <ArticleList v-bind:articles="articles"/>
+      <ItemList v-bind:items="items"/>
     </v-content>
   </v-app>
 </template>
 
 <script>
 import UrlInput from './components/UrlInput'
-import ArticleList from './components/ArticleList'
+import ItemList from './components/ItemList'
 import axios from "axios";
+import sanitizeHTML from 'sanitize-html';
 //import xml2js from "xml2js";
+
+// Make sure Array.isArray is defined
+if (!Array.isArray) {
+  Array.isArray = function(arg) {
+    return Object.prototype.toString.call(arg) === '[object Array]';
+  };
+}
 
 export default {
   name: 'App',
   components: {
     UrlInput,
-    ArticleList
+    ItemList
   },
   methods: {
     urlUpdated (url) {
       this.url = url
 
   const self = this;
-  axios.get("./assets/test.xml")
+  //axios.get("./assets/nasa.xml")
+  axios.get(url)
   .then(function (response) {
       var parseString = require('xml2js').parseString;
-        parseString(response.data, function (err, result) {
-          console.log(err);
-            console.log(JSON.stringify(result.rss.channel[0].title));
-            self.articles = result.rss.channel[0].item;
+        parseString(response.data, { explicitArray: false },  function (err, result) {
+            var items = [];
+            var index = 0;
+            result.rss.channel.item.forEach(i => {
+              console.log(i);
+              var item = { 
+                title: i.title, 
+                link: i.link,
+                guid: i.guid,
+                index: index++,
+                description: sanitizeHTML(i.description),
+                pubDate: i.pubDate,
+                author: i.author,
+                content: i["content:encoded"]//,
+                //enclosure: i.enclosure.url,
+                //enclosureType: i.enclosure.type
+              };
+
+              var mediaContent = i["media:content"];
+              var mediaDesc = i["media:description"];
+              if (Array.isArray(mediaContent) && mediaContent.length > 0) {
+                  item.imageSrc = mediaContent[0].$.url;
+                  console.log("Setting source to " + item.imageSrc);
+                  //item.imageDesc = mediaDesc[0];
+              } else if (mediaContent != null) {
+                  item.imageSrc = mediaContent.$.url;
+                  //item.imageDesc = mediaDesc;
+              }
+
+              var enclosure = i["enclosure"];
+              if (Array.isArray(enclosure) && enclosure.length > 0) {
+                  item.enclosure = enclosure[0].$.url
+                  item.enclosureType = enclosure[0].$.type
+              } else if (enclosure != null) {
+                  item.enclosure = enclosure.$.url
+                  item.enclosureType = enclosure.$.type
+              }
+
+              items.push(item);
+            });
+            self.items = items;
         });  })
   .catch(function (error) {
     // handle error
@@ -86,7 +132,7 @@ export default {
   data () {
     return {
       url: "Please enter a URL",
-      articles: []
+      items: []
       //
     }
   }
