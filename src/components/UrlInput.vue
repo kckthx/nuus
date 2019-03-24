@@ -48,7 +48,9 @@
         this.$emit('update:url', this.dataUrl);
        },
       menuItemClicked (url) {
-        this.$emit('update:url', url);
+        this.dataUrl = url;
+        this.appendIconClicked();
+        //this.$emit('update:url', url);
        }
     }
   }

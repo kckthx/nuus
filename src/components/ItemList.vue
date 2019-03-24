@@ -1,5 +1,5 @@
 <template>
-<v-container>
+<v-container class="ma-0 pa-0">
     <v-layout row wrap>
       <v-list>
         <Item v-for="item in items"

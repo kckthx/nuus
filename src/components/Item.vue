@@ -1,6 +1,7 @@
 <template>
         <v-card class="ma-3"> 
 
+<div v-if="$root.showMedia">
             <video v-if="item.enclosureType != null && item.enclosureType.indexOf('video') === 0" 
               ref="video"
               width="100%" 
@@ -14,7 +15,7 @@
             :src="item.imageSrc"
             aspect-ratio="2.75"
           ></v-img>
-
+</div>
           <v-card-title primary-title>
             <div>
               <h3>{{ item.title }}</h3>
@@ -33,6 +34,7 @@
 
 
 <script>
+
 export default {
   props: {
     item: {
