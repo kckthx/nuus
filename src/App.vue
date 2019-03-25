@@ -60,9 +60,6 @@
 
     <v-content>
       <UrlInput v-on:update:url="urlUpdated($event)" v-bind:url="url"/>
-
-      <div>Current url is: {{ url }}</div>
-
       <ItemList v-bind:items="items"/>
     </v-content>
   </v-app>
