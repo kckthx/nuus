@@ -40,6 +40,7 @@
       menuItems: [
         { title: 'NASA', url: './assets/nasa.xml' },
         { title: 'The Guardian', url: './assets/test.xml' },
+        { title: 'Zipped bundle', url: './assets/bundle.zip' }
       ],
       dataUrl: ""
     }),

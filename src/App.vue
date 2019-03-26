@@ -18,11 +18,11 @@
         <v-list class="pa-1">
           <v-list-tile avatar>
             <v-list-tile-avatar>
-              <img src="https://randomuser.me/api/portraits/men/85.jpg">
+              <img src="img/icons/apple-touch-icon-60x60.png">
             </v-list-tile-avatar>
   
             <v-list-tile-content>
-              <v-list-tile-title>John Leider</v-list-tile-title>
+              <v-list-tile-title>NUUS</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </v-list>
@@ -90,14 +90,49 @@ export default {
 //mixins: [settings],
   methods: {
     urlUpdated (url) {
-      this.url = url
+
+
+  this.url = url
 
   const self = this;
-  //axios.get("./assets/nasa.xml")
+
+      if (url.endsWith("zip")) {
+        axios.get(url, { responseType:"blob" })
+        .then(function (response) {
+        var JSZip = require("jszip");
+          console.log("Loading ZIP file");
+        JSZip.loadAsync(response.data).then(function (zip) {
+          console.log("Loaded ZIP file");
+          zip.forEach(function (relativePath, file){
+              console.log("iterating over", relativePath);
+              if (relativePath == "index.rss") {
+                file.async("string").then(function (text) {
+                  console.log("Content " + text);
+                  self.parseRSS(self, text);
+                });
+              }
+          });
+        });        
+      })
+      } else {
   axios.get(url)
   .then(function (response) {
+        self.parseRSS(self, response.data);
+  })
+  .catch(function (error) {
+    // handle error
+    console.log(error);
+  })
+  .then(function () {
+    // always executed
+  });
+    }
+    },
+
+    parseRSS(self, data) {
+            // Get the parseString function
       var parseString = require('xml2js').parseString;
-        parseString(response.data, { explicitArray: false },  function (err, result) {
+        parseString(data, { explicitArray: false },  function (err, result) {
             var items = [];
             var index = 0;
             result.rss.channel.item.forEach(i => {
@@ -139,38 +174,9 @@ export default {
               items.push(item);
             });
             self.items = items;
-        });  })
-  .catch(function (error) {
-    // handle error
-    console.log(error);
-  })
-  .then(function () {
-    // always executed
-  });
-
- /*  axios.get('http://url.to/events.xml')
-    .then(response => {
-      console.log(response.data);
-    parseString(response.data, (err, result) => {
-      if(err) {
-       //Do something
-      } else {
-       this.events = result
-     }
-    });        
-  })
-} */
-/*
-      const vm = this;
-      var xml = require("!!raw-loader!./assets/test.xml");
-      console.log(xml.data);
-        var parseString = require('xml2js').parseString;
-        parseString(xml, function (err, result) {
-          console.log(err);
-            console.log(JSON.stringify(result.rss.channel[0].title));
-           // vm.importantLinks = result.rss.channel[0].item;
-        });*/
+        });
     }
+
   },
   data () {
     return {
@@ -178,8 +184,10 @@ export default {
       items: [],
       drawer: null,
       menuItems: [
+        /*
         { title: 'Home', icon: 'dashboard' },
         { title: 'About', icon: 'question_answer' }
+        */
       ]
       //
     }
