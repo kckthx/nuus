@@ -16,7 +16,7 @@
               width="100%" 
               controls 
               >
-              <source :src="enclosureURL" :type="item.enclosureType">
+              <source :src="enclosureURL" :type="item.enclosureType"/>
               Your browser does not support the audio tag.
             </audio>
           <v-img v-else-if="item.imageSrc != null"
@@ -53,8 +53,20 @@ export default {
       }
     }
   },
-  mounted () {
-    this.enclosureURL = this.enclosure()
+
+  mounted: function () {
+    var self = this;
+    if (this.hasVideoEnclosure()) {
+      this.enclosure().then(function(res) {
+       self.enclosureURL = res;
+       self.$refs.video.load();
+      });
+    } else if (this.hasAudioEnclosure()) {
+      this.enclosure().then(function(res) {
+       self.enclosureURL = res;
+       self.$refs.audio.load();
+      });
+    }
   },
   data: () => ({
     enclosureURL: ""
@@ -69,12 +81,9 @@ export default {
     },
     async enclosure() {
       if (this.item.enclosure.startsWith("file://")) {
-        console.log("Looking up " + this.item.enclosure + " type " + this.item.enclosureType);
-        let blob = await db.media.get(this.item.enclosure);
-        console.log("Got " + blob.blob);
+        let blob = await db.getMediaFile(this.item.enclosure);
         var myURL = window.URL || window.webkitURL
         let url = myURL.createObjectURL(blob.blob);
-        console.log("And the URL is " + url + " B " + blob.blob.size);
         return url;
       }
       return this.item.enclosure;

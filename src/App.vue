@@ -107,17 +107,33 @@ export default {
               console.log("iterating over", relativePath);
               if (relativePath == "index.rss") {
                 file.async("string").then(function (text) {
-                  console.log("Content " + text);
+                  //console.log("Content " + text);
                   self.parseRSS(self, text);
                 });
               } else if (relativePath.startsWith("enc/") && !file.dir) {
-                file.internalStream("uint8array")
-                  .accumulate(function updateCallback(metadata) {
-                  })
-                  .then(function (binaryData) {
-                    let blob = new Blob([binaryData], {type: 'audio/mpeg'});
-                     db.media.add ({url: "file://" + relativePath, blob: blob });
-                  });
+                let url = "file://" + relativePath;
+
+                // Cached already?
+                db.getMediaFile(url).then(function(blob) {
+                if (blob == null) {
+                  file.async('nodebuffer')
+                   .then(function (binaryData) {
+                     let blob = new Blob([binaryData], {type: 'audio/mpeg'});
+                      db.media.add ({url: "file://" + relativePath, blob: blob });
+                   });
+                }
+
+                });
+                
+
+
+                // file.internalStream("uint8array")
+                //   .accumulate(function updateCallback(metadata) {
+                //   })
+                //   .then(function (binaryData) {
+                //     let blob = new Blob([binaryData], {type: 'audio/mpeg'});
+                //      db.media.add ({url: "file://" + relativePath, blob: blob });
+                //   });
               }
           });
         });        

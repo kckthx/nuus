@@ -5,4 +5,8 @@ db.version(1).stores({
     media: "url"
 });
 
+db.getMediaFile = async function(url) {
+    return await db.media.get(url);
+}
+
 export default db;
