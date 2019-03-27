@@ -70,7 +70,7 @@ import UrlInput from './components/UrlInput'
 import ItemList from './components/ItemList'
 import axios from "axios";
 import sanitizeHTML from 'sanitize-html';
-//import { settings } from './services/settings';
+import db from './database';
 
 //import xml2js from "xml2js";
 
@@ -110,6 +110,14 @@ export default {
                   console.log("Content " + text);
                   self.parseRSS(self, text);
                 });
+              } else if (relativePath.startsWith("enc/") && !file.dir) {
+                file.internalStream("uint8array")
+                  .accumulate(function updateCallback(metadata) {
+                  })
+                  .then(function (binaryData) {
+                    let blob = new Blob([binaryData], {type: 'audio/mpeg'});
+                     db.media.add ({url: "file://" + relativePath, blob: blob });
+                  });
               }
           });
         });        
@@ -137,7 +145,7 @@ export default {
             var index = 0;
             result.rss.channel.item.forEach(i => {
               //console.log(i);
-              console.log(sanitizeHTML(i.description));
+              //console.log(sanitizeHTML(i.description));
               var item = { 
                 title: i.title, 
                 link: i.link,
@@ -155,7 +163,7 @@ export default {
               var mediaDesc = i["media:description"];
               if (Array.isArray(mediaContent) && mediaContent.length > 0) {
                   item.imageSrc = mediaContent[0].$.url;
-                  console.log("Setting source to " + item.imageSrc);
+                  //console.log("Setting source to " + item.imageSrc);
                   //item.imageDesc = mediaDesc[0];
               } else if (mediaContent != null) {
                   item.imageSrc = mediaContent.$.url;
